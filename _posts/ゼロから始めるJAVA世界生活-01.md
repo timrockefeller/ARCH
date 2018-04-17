@@ -21,6 +21,8 @@ $ java -version
     ```
     若能成功显示版本号则安装成功。
 
+<!--more-->
+
 ### VSCode
 
 安装 VSCode 后，添加插件`Java Extension Pack`。
