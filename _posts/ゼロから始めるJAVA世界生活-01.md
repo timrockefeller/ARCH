@@ -1,7 +1,9 @@
 ---
 title: ゼロから始めるJAVA世界生活 01
 date: 2018-04-17 20:20:06
-tags: oracle
+tags: [oracle,java,coding]
+---
+
 ---
 
 ## 环境搭建
@@ -34,9 +36,85 @@ $ java -version
 ```
 环境变量中添加`JDK_HOME`，值与`JAVA_HOME`相同。
 
+#### 项目文件目录
+
+    ├── .classpath
+    ├── .project
+    ├── .vscode
+    │   └── launch.json
+    ├── bin
+    └── src
+
+#### 创建.project和.classpath文件
+
+ - .project
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+    <name>testjava</name>
+    <comment>Project testjava created by Buildship.</comment>
+    <projects>
+    </projects>
+    <buildSpec>
+        <buildCommand>
+            <name>org.eclipse.jdt.core.javabuilder</name>
+            <arguments> </arguments>
+        </buildCommand>
+        <buildCommand>
+            <name>org.eclipse.buildship.core.gradleprojectbuilder</name>
+            <arguments> </arguments>
+        </buildCommand>
+    </buildSpec>
+    <natures>
+        <nature>org.eclipse.jdt.core.javanature</nature>
+        <nature>org.eclipse.buildship.core.gradleprojectnature</nature>
+    </natures>
+</projectDescription>
+```
+ - .classpath
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
+	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+```
+
+VSCode会自动识别为eclipse项目。
+
+#### 配置launch.json
+
+在此处添加classpath,cwd等信息可为编译器指定目录。
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug (Launch)",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/bin",
+      "sourcePaths": [
+        "$(workspaceRoot)/src"
+      ],
+      "classPaths": [//可导入jar包
+        "",
+        "$(workspaceRoot)/bin"
+      ],
+      "mainClass": "com.coolcao.test.${fileBasenameNoExtension}",
+      "args": ""
+    }
+  ]
+}
+```
+
+
 ### Eclipse
 
-该软件能自动寻找jdk环境。
+该软件能自动寻找jdk环境，提供**GUI**。
 
 ## 概念描述
 
@@ -68,6 +146,7 @@ $ javadoc -d doc *.java
 根据文档中关键词生成文档，诸如`@param`，`@returns`，`@throw`可用于方法注释。
 
 #### format
+
 ```java
 /**
  * your note here
@@ -76,6 +155,27 @@ $ javadoc -d doc *.java
  */
 int static foo();
 ```
+
+### *.jar
+
+将多个class封装成一个包，可保存资源、代码等。
+
+#### 封装
+
+1. eclipse中选中package使用**Export**导出为jar文件。
+
+2. `$ jar -cvf [Export Name] [Package Name]`
+
+#### 引用
+
+引用时有多种方法
+
+1. `$ javac -classpath ./bin <javafile>`
+这里的`-classpath`又可缩写为`-cp`。
+
+2. eclipse中设置项目首选项。
+
+3. 手动更改.classpath文件，具体前面有写道。
 
 ## 语法
 
@@ -101,3 +201,33 @@ java是纯面向对象语言，风格和C#类似
 类 -> 实例1，实例2，...
 
 `实例1.fun();`，`类.(static)foo();`。
+
+
+## 小作业
+
+### 1. Hello world
+
+```java
+// @file ./HelloWorld.java
+public class HelloWorld {
+    public static void main(String [] args){
+        System.out.println("Hello World");
+    }
+}
+```
+
+### 2. Operation
+
+```java
+// @file test.java
+// @classpath ./bin
+import com.oraclesdp.common.*;
+public class test {
+    public static void main(String [] args){
+        String value = SystemIn.nextLine();
+        System.out.println(value);
+        System.out.println(13>>2);// 3
+        System.out.println(23&12);// 4
+    }
+} 
+```
