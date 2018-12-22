@@ -121,7 +121,7 @@ uninstall   Uninstall a Rust binary
 
 ### 插件配置
 
-![sp181222_141230](.\imgs\sp181222_141230.png)
+![sp181222_141230](https://i.loli.net/2018/12/22/5c1dd8fc37d34.png)
 
 商店搜索前两个就是几十万人下载的工具，两个都装上吧？前者是官方的包括rls在内的综合插件。后者虽然是第三方，但功能不比官方少。
 
@@ -144,4 +144,96 @@ uninstall   Uninstall a Rust binary
 ```powershell
 > rustup default nightly
 > rustup update
+...
+> rustup component add rust-analysis
 ```
+
+**漫长**的安装完成后，写一个小程序试一试。
+
+_main.rs_
+
+```rust
+fn main(){
+    println!("fa ♂");
+}
+```
+
+至此，基本能实现实时提示错误、高亮、用户片段。
+
+#### 常见错误
+
+1. 官方插件提示 RLS could not set RUST_SRC_PATH for Racer because it could not read the Rust sysroot.
+
+   尝试使用以下方法：
+
+   - 使用管理员模式启动Vs Code。
+   - 确定各path位置正确。
+   - 添加setting.json条目`"rust-client.channel": "stable",`或nightly。
+   - 重新使用cargo建立一个项目
+
+   错误原因如下
+
+   [stackoverflow](https://stackoverflow.com/questions/48978766/visual-studio-code-warning-rls-could-not-set-rust-src-path-for-racer-because-it):
+
+   > 该插件 readme文件列出了如下依赖:
+   >
+   > - Rustup,
+   > - 一个toolchain (插件会在获得权限后自动安装),
+   > - RLS, rust-src, rust-analysis组件.
+
+2. 待补充
+
+### 调试
+
+LLDB很棒，但是有请我们的TDM-GDB出场（打扰了）。
+
+从[sourceforge](https://sourceforge.net/projects/tdm-gcc/files/GDB)上下载后，解压得到bin、gdb64、share至某目录（我的是`D:\env`）。
+
+##### 配置rust-gdb
+
+之前下载的rust源码（`%rust%\lib\rustlib`）提供了一套gdb配置。
+
+修改`gdb64\bin`目录下的gdbinit文件，在末尾添加以下代码：
+
+```python
+python
+print "-- loading rust pretty-printers --"
+sys.path.insert(0,'%rust%/lib/rustlib/etc')
+import gdb_rust_pretty_printing
+gdb_rust_pretty_printing.register_printer(gdb)
+end
+```
+
+执行（`> bin\gdb.exe`），若能输出”-- loading rust pretty-printers --“并没有报错，说明gdb工具配置成功。
+
+##### 配置Vs Code
+
+安装Native Debug插件（` ext install debug`）。
+
+用Vs Code打开你的Cargo工程，添加调试配置GDB，将target指向生成的exe文件，将gdbpath设置为刚刚配置的gdb.exe。
+
+添加一个task，选择`cargo build`，设置为`preLaunchTask`。
+
+![task](https://i.loli.net/2018/12/22/5c1de12ec95aa.png)
+
+这时你的launch.json大致如下
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug",
+            "type": "gdb",
+            "request": "launch",
+            "preLaunchTask": "cargo build",
+            "target": "${workspaceRoot}\\target\\debug\\optimvsc.exe",
+            "gdbpath": "D:\\env\\gdb-tdm64\\bin\\gdb.exe",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
+
+```
+
+快快创建断点测试一下吧！
